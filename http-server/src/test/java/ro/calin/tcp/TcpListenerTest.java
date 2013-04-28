@@ -20,6 +20,7 @@ public class TcpListenerTest {
     public static final int PORT = 12345;
 
     private Listener listener;
+    private TcpConnectionHandler connectionHandler;
 
     private static class EchoProtocolHandler implements ProtocolHandler {
         @Override
@@ -79,14 +80,14 @@ public class TcpListenerTest {
     public void prepare() throws IOException {
         int workers = 10;
 
-        TcpConnectionHandler handler = new TcpConnectionHandler(workers, new EchoProtocolHandler());
-        listener = new TcpListener(handler, PORT);
-        listener.start();
+        connectionHandler = new TcpConnectionHandler(workers, new EchoProtocolHandler());
+        listener = new TcpListener(connectionHandler, PORT);
     }
 
     @After
     public void destroy() {
-        listener.stop();
+        listener.shutdown();
+        connectionHandler.shutdown();
     }
 
     @Test(timeout = 1000)

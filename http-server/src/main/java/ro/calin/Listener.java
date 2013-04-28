@@ -4,7 +4,6 @@ package ro.calin;
  * @author calin
  */
 public interface Listener {
-    void start() throws IllegalStateException;
-    void stop();
+    void shutdown();
     boolean isRunning();
 }

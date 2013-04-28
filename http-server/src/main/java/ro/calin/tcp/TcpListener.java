@@ -15,11 +15,13 @@ public class TcpListener implements Listener, Runnable {
     private ServerSocket serverSocket;
 
     private volatile boolean running;
-    private boolean started;
 
     public TcpListener(TcpConnectionHandler handler, int port) throws IOException {
         this.handler = handler;
         this.serverSocket = new ServerSocket(port);
+
+        running = true;
+        new Thread(this).start();
     }
 
     public void run() {
@@ -33,16 +35,7 @@ public class TcpListener implements Listener, Runnable {
         }
     }
 
-    public void start() throws IllegalStateException {
-        if(started) throw new IllegalStateException();
-
-        started = true;
-        running = true;
-
-        new Thread(this).start();
-    }
-
-    public void stop() {
+    public void shutdown() {
         running = false;
 
         try {
