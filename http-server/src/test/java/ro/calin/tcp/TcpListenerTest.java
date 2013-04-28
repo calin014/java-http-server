@@ -58,7 +58,7 @@ public class TcpListenerTest {
                 out = new PrintWriter(echoSocket.getOutputStream(), true);
                 in = new BufferedReader(new InputStreamReader(
                         echoSocket.getInputStream()));
-                out.println("Hi. I am " + id);
+                out.println("Hi. I am client " + id);
                 out.println(BYE + " from " + id);
 
                 String inputLine;
@@ -93,7 +93,7 @@ public class TcpListenerTest {
     public void basicTest() throws InterruptedException {
         final List<Thread> failedClients = new ArrayList<Thread>();
         List<Thread> clients = new ArrayList<Thread>();
-        for (int i = 0; i < 5; i++) {
+        for (int i = 0; i < 20; i++) {
             final int id = i;
             Thread client = new Thread(new Client(id));
             client.setUncaughtExceptionHandler(new Thread.UncaughtExceptionHandler() {
