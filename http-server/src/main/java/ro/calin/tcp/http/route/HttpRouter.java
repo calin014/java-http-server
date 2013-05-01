@@ -7,5 +7,5 @@ import ro.calin.tcp.http.request.HttpMethod;
  */
 public interface HttpRouter {
     void addRoute(HttpMethod method, String urlPattern, HttpServler servler);
-    HttpServler findRoute(HttpMethod method, String urlPattern);
+    HttpServler findRoute(HttpMethod method, String url);
 }

@@ -3,6 +3,7 @@ package ro.calin.tcp.http.request.parser;
 import org.junit.Assert;
 import org.junit.Test;
 import ro.calin.tcp.http.request.HttpRequest;
+import ro.calin.tcp.http.request.HttpVersion;
 
 import java.io.ByteArrayInputStream;
 
@@ -17,7 +18,7 @@ public class BasicHttpRequestParserTest {
     @Test
     public void simpleTest() throws BadRequestException {
         String request =
-                "GET /easy/http/?test=a&test=b&othertest=c HTTP/1.1\n" +
+                "GET /easy/http/?test=a&test=b&othertest=c \tHTTP/1.1\n" +
                 "Host: www.jmarshall.com\n" +
                 "Connection: keep-alive\n" +
                 "Cache-Control: max-age=0\n" +
@@ -37,6 +38,7 @@ public class BasicHttpRequestParserTest {
         HttpRequest expected = new HttpRequest()
                 .method(GET)
                 .url("/easy/http/")
+                .version(HttpVersion.HTTP11)
                 .param("test", "a")
                 .param("test", "b")
                 .param("othertest", "c")

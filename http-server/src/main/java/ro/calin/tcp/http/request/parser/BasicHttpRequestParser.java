@@ -2,6 +2,7 @@ package ro.calin.tcp.http.request.parser;
 
 import ro.calin.tcp.http.request.HttpMethod;
 import ro.calin.tcp.http.request.HttpRequest;
+import ro.calin.tcp.http.request.HttpVersion;
 import ro.calin.tcp.http.response.HttpResponse;
 
 import java.io.*;
@@ -22,6 +23,7 @@ public class BasicHttpRequestParser implements HttpRequestParser {
             String line;
             while ((line = in.readLine()) != null) {
                 if ("".equals(line)) break;
+                //TODO: headers can be on multiple rows(subsequent rows start with space or tab)
                 parseHeader(line, request);
             }
 
@@ -39,17 +41,25 @@ public class BasicHttpRequestParser implements HttpRequestParser {
         int i = line.indexOf(':');
         if(i == -1) throwBadRequest();
 
-        request.header(line.substring(0, i), line.substring(i + 1));
+        request.header(line.substring(0, i).trim(), line.substring(i + 1).trim());
     }
 
     private void parseMethodAndUrl(String line, HttpRequest request) throws BadRequestException {
-        String[] split = line.split(" ");
+        String[] split = line.split("\\s+");
 
         if(split.length != 3) throwBadRequest();
-        if (!acceptedProtocolSpec(split[2])) throwBadRequest();
 
+        parseVersion(split[2], request);
         parseMethod(split[0], request);
         parseUrl(split[1], request);
+    }
+
+    private void parseVersion(String version, HttpRequest request) throws BadRequestException {
+        try {
+            request.version(HttpVersion.getVersion(version));
+        } catch (IllegalArgumentException e) {
+            throwBadRequest();
+        }
     }
 
     private void parseUrl(String url, HttpRequest request) {
@@ -75,10 +85,6 @@ public class BasicHttpRequestParser implements HttpRequestParser {
         } catch (IllegalArgumentException e) {
             throwBadRequest();
         }
-    }
-
-    private boolean acceptedProtocolSpec(String protSpec) {
-        return protSpec.equals("HTTP/1.0") || protSpec.equals("HTTP/1.1");
     }
 
     private void throwBadRequest() throws BadRequestException {

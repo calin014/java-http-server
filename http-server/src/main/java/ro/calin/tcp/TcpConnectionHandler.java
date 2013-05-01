@@ -15,6 +15,7 @@ public class TcpConnectionHandler {
 
     public TcpConnectionHandler(int workers, ProtocolHandler protocolHandler) {
         if(workers < 1) throw new IllegalArgumentException();
+        if(protocolHandler == null) throw new IllegalArgumentException();
 
         this.protocolHandler = protocolHandler;
         executor = Executors.newFixedThreadPool(workers);
