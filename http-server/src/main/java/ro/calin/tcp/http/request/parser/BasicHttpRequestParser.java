@@ -90,6 +90,6 @@ public class BasicHttpRequestParser implements HttpRequestParser {
     }
 
     private void throwBadRequest() throws BadRequestException {
-        throw new BadRequestException(new HttpResponse());
+        throw new BadRequestException();
     }
 }

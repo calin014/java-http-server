@@ -23,7 +23,7 @@ public class BasicTcpListenerTest {
 
     private static class EchoProtocolHandler implements ProtocolHandler {
         @Override
-        public void handle(InputStream inputStream, OutputStream outputStream) throws IOException {
+        public boolean handle(InputStream inputStream, OutputStream outputStream) throws IOException {
             PrintWriter out = new PrintWriter(outputStream, true);
             BufferedReader in = new BufferedReader(new InputStreamReader(inputStream));
 
@@ -37,6 +37,7 @@ public class BasicTcpListenerTest {
 
             out.close();
             in.close();
+            return true;
         }
     }
 
