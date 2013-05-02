@@ -1,10 +1,18 @@
 package ro.calin.tcp.http.response;
 
+import java.io.OutputStream;
+import java.io.PrintWriter;
+
 /**
  * @author calin
  */
 public class HttpResponse {
-    public HttpResponse() {
+    private final PrintWriter pw;
+    private final OutputStream outputStream;
+
+    public HttpResponse(OutputStream outputStream) {
+        this.outputStream = outputStream;
+        this.pw = new PrintWriter(outputStream);
     }
 
     public HttpResponse status(HttpStatus status) {
@@ -15,7 +23,7 @@ public class HttpResponse {
         return this;
     }
 
-    public void body(byte[] html) {
+    public void body(byte[] body) {
         //To change body of created methods use File | Settings | File Templates.
     }
 

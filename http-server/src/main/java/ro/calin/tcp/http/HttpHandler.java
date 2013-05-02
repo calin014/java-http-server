@@ -5,13 +5,15 @@ import ro.calin.tcp.http.request.parser.BadRequestException;
 import ro.calin.tcp.http.request.parser.HttpRequestParser;
 import ro.calin.tcp.http.request.HttpRequest;
 import ro.calin.tcp.http.response.HttpResponse;
-import ro.calin.tcp.http.response.HttpResponseSerializer;
 import ro.calin.tcp.http.route.HttpRouter;
 import ro.calin.tcp.http.route.HttpServler;
 
 import java.io.IOException;
 import java.io.InputStream;
 import java.io.OutputStream;
+
+import static ro.calin.tcp.http.response.HttpStatus.BAD_REQUEST;
+import static ro.calin.tcp.http.response.HttpStatus.NOT_FOUND;
 
 /**
  * @author calin
@@ -21,32 +23,30 @@ import java.io.OutputStream;
 public class HttpHandler implements ProtocolHandler {
     private HttpRequestParser requestParser;
     private HttpRouter httpRouter;
-    private HttpResponseSerializer responseSerializer;
 
-    public HttpHandler(HttpRequestParser requestParser, HttpRouter httpRouter, HttpResponseSerializer responseSerializer) {
+    public HttpHandler(HttpRequestParser requestParser, HttpRouter httpRouter) {
         this.requestParser = requestParser;
         this.httpRouter = httpRouter;
-        this.responseSerializer = responseSerializer;
     }
 
     @Override
-    public void handle(InputStream inputStream, OutputStream outputStream) throws IOException {
+    public boolean handle(InputStream inputStream, OutputStream outputStream) throws IOException {
         HttpRequest httpRequest;
-        HttpResponse httpResponse;
+        HttpResponse httpResponse = new HttpResponse(outputStream);
 
         try {
             httpRequest = requestParser.parse(inputStream);
             HttpServler servler = httpRouter.findRoute(httpRequest.getMethod(), httpRequest.getUrl());
-            httpResponse = new HttpResponse();
             if(servler != null) {
                 servler.serve(httpRequest, httpResponse);
             } else {
-                httpResponse.status(404);
+                httpResponse.status(NOT_FOUND);
             }
         } catch (BadRequestException e) {
-            httpResponse = e.getResponse();
+            httpResponse.status(BAD_REQUEST);
         }
 
-        responseSerializer.serialize(httpResponse, outputStream);
+        //TODO: return based on 'Connection: close' header
+        return true;
     }
 }
