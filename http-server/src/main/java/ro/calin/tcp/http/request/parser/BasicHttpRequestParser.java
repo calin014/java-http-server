@@ -9,6 +9,8 @@ import java.io.*;
 
 /**
  * @author calin
+ *
+ * @see https://github.com/NanoHttpd/nanohttpd/blob/master/core/src/main/java/fi/iki/elonen/NanoHTTPD.java
  */
 public class BasicHttpRequestParser implements HttpRequestParser {
     @Override
@@ -45,13 +47,13 @@ public class BasicHttpRequestParser implements HttpRequestParser {
     }
 
     private void parseMethodAndUrl(String line, HttpRequest request) throws BadRequestException {
-        String[] split = line.split("\\s+");
+        String[] tokens = line.split("\\s+");
 
-        if(split.length != 3) throwBadRequest();
+        if(tokens.length != 3) throwBadRequest();
 
-        parseVersion(split[2], request);
-        parseMethod(split[0], request);
-        parseUrl(split[1], request);
+        parseVersion(tokens[2], request);
+        parseMethod(tokens[0], request);
+        parseUrl(tokens[1], request);
     }
 
     private void parseVersion(String version, HttpRequest request) throws BadRequestException {
@@ -63,15 +65,15 @@ public class BasicHttpRequestParser implements HttpRequestParser {
     }
 
     private void parseUrl(String url, HttpRequest request) {
-        String[] split = url.split("\\?");
-        request.setUrl(split[0]);
+        String[] tokens = url.split("\\?");
+        request.setUrl(tokens[0]);
 
-        if(split.length > 1) parseUrlParams(split[1], request);
+        if(tokens.length > 1) parseUrlParams(tokens[1], request);
     }
 
     private void parseUrlParams(String urlParams, HttpRequest request) {
-        String[] split = urlParams.split("&");
-        for (String param : split) {
+        String[] tokens = urlParams.split("&");
+        for (String param : tokens) {
             String[] keyval = param.split("=");
             if(keyval.length == 2) {
                 request.param(keyval[0], keyval[1]);
