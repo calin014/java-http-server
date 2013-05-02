@@ -4,7 +4,6 @@ import org.junit.After;
 import org.junit.Assert;
 import org.junit.Before;
 import org.junit.Test;
-import ro.calin.Listener;
 
 import java.io.*;
 import java.net.Socket;
@@ -14,12 +13,12 @@ import java.util.List;
 /**
  * @author calin
  */
-public class TcpListenerTest {
+public class BasicTcpListenerTest {
     public static final String LOCALHOST = "localhost";
     public static final String BYE = "Bye";
     public static final int PORT = 12345;
 
-    private Listener listener;
+    private TcpListener tcpListener;
     private TcpConnectionHandler connectionHandler;
 
     private static class EchoProtocolHandler implements ProtocolHandler {
@@ -80,13 +79,13 @@ public class TcpListenerTest {
     public void prepare() throws IOException {
         int workers = 10;
 
-        connectionHandler = new TcpConnectionHandler(workers, new EchoProtocolHandler());
-        listener = new TcpListener(connectionHandler, PORT);
+        connectionHandler = new BasicTcpConnectionHandler(workers, new EchoProtocolHandler());
+        tcpListener = new BasicTcpListener(connectionHandler, PORT);
     }
 
     @After
     public void destroy() {
-        listener.shutdown();
+        tcpListener.shutdown();
         connectionHandler.shutdown();
     }
 
