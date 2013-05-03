@@ -31,8 +31,6 @@ public class BasicHttpRequestParser implements HttpRequestParser {
 
             //TODO: if it makes sense? eg.: not GET???
             request.setBody(stream);
-
-            in.close();
         } catch (IOException e) {
             throwBadRequest();
         }

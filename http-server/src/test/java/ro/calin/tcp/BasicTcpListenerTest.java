@@ -34,9 +34,6 @@ public class BasicTcpListenerTest {
             }
 
             out.println(Thread.currentThread().getName());
-
-            out.close();
-            in.close();
             return true;
         }
     }

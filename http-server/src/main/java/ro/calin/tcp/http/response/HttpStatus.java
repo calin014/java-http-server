@@ -8,7 +8,7 @@ public enum HttpStatus {
     CREATED(201, "Created"),
     NO_CONTENT(204, "No Content"),
     PARTIAL_CONTENT(206, "Partial Content"),
-    REDIRECT(301, "Moved Permanently"),
+    MOVED_PERMANENTLY(301, "Moved Permanently"),
     NOT_MODIFIED(304, "Not Modified"),
     BAD_REQUEST(400, "Bad Request"),
     UNAUTHORIZED(401, "Unauthorized"),

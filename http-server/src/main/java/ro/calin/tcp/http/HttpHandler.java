@@ -1,6 +1,7 @@
 package ro.calin.tcp.http;
 
 import ro.calin.tcp.ProtocolHandler;
+import ro.calin.tcp.http.request.HttpVersion;
 import ro.calin.tcp.http.request.parser.BadRequestException;
 import ro.calin.tcp.http.request.parser.HttpRequestParser;
 import ro.calin.tcp.http.request.HttpRequest;
@@ -32,10 +33,11 @@ public class HttpHandler implements ProtocolHandler {
     @Override
     public boolean handle(InputStream inputStream, OutputStream outputStream) throws IOException {
         HttpRequest httpRequest;
-        HttpResponse httpResponse = new HttpResponse(outputStream);
+        HttpResponse httpResponse;
 
         try {
             httpRequest = requestParser.parse(inputStream);
+            httpResponse = new HttpResponse(outputStream, httpRequest.getVersion());
             HttpServler servler = httpRouter.findRoute(httpRequest.getMethod(), httpRequest.getUrl());
             if(servler != null) {
                 servler.serve(httpRequest, httpResponse);
@@ -43,6 +45,7 @@ public class HttpHandler implements ProtocolHandler {
                 httpResponse.status(NOT_FOUND);
             }
         } catch (BadRequestException e) {
+            httpResponse = new HttpResponse(outputStream, HttpVersion.HTTP11);
             httpResponse.status(BAD_REQUEST);
         }
 

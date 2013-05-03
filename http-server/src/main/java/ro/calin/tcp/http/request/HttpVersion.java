@@ -9,8 +9,8 @@ public enum HttpVersion {
 
     private final String version;
 
-    HttpVersion(String s) {
-        this.version = s;
+    HttpVersion(String version) {
+        this.version = version;
     }
 
     public static HttpVersion getVersion(String value) {
@@ -19,6 +19,10 @@ public enum HttpVersion {
         for(HttpVersion enumValue : values())
             if(value.equalsIgnoreCase(enumValue.version)) return enumValue;
         throw new IllegalArgumentException();
+    }
+
+    public String getVersion() {
+        return version;
     }
 
 }
