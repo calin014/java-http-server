@@ -2,11 +2,11 @@ package ro.calin.fileserver;
 
 import java.io.*;
 
+import org.kohsuke.args4j.CmdLineException;
+import org.kohsuke.args4j.CmdLineParser;
+import org.kohsuke.args4j.Option;
 import ro.calin.tcp.http.Server;
-import ro.calin.tcp.http.request.HttpRequest;
-import ro.calin.tcp.http.response.HttpResponse;
-import ro.calin.tcp.http.response.HttpStatus;
-import ro.calin.tcp.http.route.HttpServler;
+
 import static ro.calin.tcp.http.request.HttpMethod.GET;
 
 /**
@@ -15,13 +15,23 @@ import static ro.calin.tcp.http.request.HttpMethod.GET;
 public class FileServer {
 
     public static void main(String[] args) throws IOException {
-        //TODO: get from cmd line
-        String root = "/home/cavasilcai/www/";
+        ServerOptions o = new ServerOptions();
+        CmdLineParser parser = new CmdLineParser(o);
+
+        try {
+            parser.parseArgument(args);
+        } catch(CmdLineException e ) {
+            System.err.println(e.getMessage());
+            System.err.println("java -jar file-web-server.jar options\nOptions:");
+            parser.printUsage(System.err);
+            return;
+        }
+
         final Server server = Server.create()
-                .workers(20)
-                .port(1234)
-                .keepAlive(false)
-                .route(GET, ".*", new FileServler(root))
+                .workers(o.workers)
+                .port(o.port)
+                .keepAlive(o.keepAlive)
+                .route(GET, ".*", new FileServerRequestHandler(o.root))
                 .start();
 
         waitForStop();
@@ -36,5 +46,16 @@ public class FileServer {
             if ("stop".equals(line))
                 break;
         }
+    }
+
+    private static class ServerOptions {
+        @Option(name="-r", required = true, usage="folder from where files will be served, mandatory")
+        private String root;
+        @Option(name="-p", usage="the port on which the server will listen, default 80")
+        private int port = 80;
+        @Option(name="-w", usage="number of worker threads, default 10")
+        private int workers = 15;
+        @Option(name="-ka", usage="reuse connection for subsequent requests")
+        private boolean keepAlive;
     }
 }

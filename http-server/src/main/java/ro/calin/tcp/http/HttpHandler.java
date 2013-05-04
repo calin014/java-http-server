@@ -7,7 +7,7 @@ import ro.calin.tcp.http.request.parser.HttpRequestParser;
 import ro.calin.tcp.http.request.HttpRequest;
 import ro.calin.tcp.http.response.HttpResponse;
 import ro.calin.tcp.http.route.HttpRouter;
-import ro.calin.tcp.http.route.HttpServler;
+import ro.calin.tcp.http.route.RequestHandler;
 
 import java.io.IOException;
 import java.io.InputStream;
@@ -38,9 +38,9 @@ public class HttpHandler implements ProtocolHandler {
         try {
             httpRequest = requestParser.parse(inputStream);
             httpResponse = new HttpResponse(outputStream, httpRequest.getVersion());
-            HttpServler servler = httpRouter.findRoute(httpRequest.getMethod(), httpRequest.getUrl());
+            RequestHandler servler = httpRouter.findRoute(httpRequest.getMethod(), httpRequest.getUrl());
             if(servler != null) {
-                servler.serve(httpRequest, httpResponse);
+                servler.handle(httpRequest, httpResponse);
             } else {
                 httpResponse.status(NOT_FOUND);
             }

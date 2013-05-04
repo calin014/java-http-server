@@ -6,6 +6,6 @@ import ro.calin.tcp.http.request.HttpMethod;
  * @author calin
  */
 public interface HttpRouter {
-    void addRoute(HttpMethod method, String urlPattern, HttpServler servler);
-    HttpServler findRoute(HttpMethod method, String url);
+    void addRoute(HttpMethod method, String urlPattern, RequestHandler servler);
+    RequestHandler findRoute(HttpMethod method, String url);
 }

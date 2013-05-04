@@ -12,7 +12,7 @@ import ro.calin.tcp.http.request.parser.BasicHttpRequestParser;
 import ro.calin.tcp.http.request.parser.HttpRequestParser;
 import ro.calin.tcp.http.route.BasicHttpRouter;
 import ro.calin.tcp.http.route.HttpRouter;
-import ro.calin.tcp.http.route.HttpServler;
+import ro.calin.tcp.http.route.RequestHandler;
 import sun.plugin.dom.exception.InvalidStateException;
 
 /**
@@ -51,7 +51,7 @@ public class Server {
         return this;
     }
 
-    public Server route(HttpMethod method, String urlPattern, HttpServler servler) {
+    public Server route(HttpMethod method, String urlPattern, RequestHandler servler) {
         httpRouter.addRoute(method, urlPattern, servler);
         return this;
     }

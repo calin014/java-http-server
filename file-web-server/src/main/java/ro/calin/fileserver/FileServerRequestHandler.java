@@ -11,12 +11,12 @@ import java.util.Map;
 import ro.calin.tcp.http.request.HttpRequest;
 import ro.calin.tcp.http.response.HttpResponse;
 import ro.calin.tcp.http.response.HttpStatus;
-import ro.calin.tcp.http.route.HttpServler;
+import ro.calin.tcp.http.route.RequestHandler;
 
 /**
  * @author cavasilcai
  */
-public class FileServler implements HttpServler {
+public class FileServerRequestHandler implements RequestHandler {
     private static String LISTING_TEMPLATE =
                     "<!DOCTYPE HTML PUBLIC \"-//W3C//DTD HTML 3.2 Final//EN\">\n" +
                     "<html>\n" +
@@ -42,12 +42,12 @@ public class FileServler implements HttpServler {
 
     private String root;
 
-    public FileServler(String root) {
+    public FileServerRequestHandler(String root) {
         this.root = root;
     }
 
     @Override
-    public void serve(HttpRequest request, HttpResponse response) {
+    public void handle(HttpRequest request, HttpResponse response) {
         //TODO: do not allow access to upper: eg.: ../smfn
         File file = new File(root, request.getUrl());
         if (!file.exists()) {
