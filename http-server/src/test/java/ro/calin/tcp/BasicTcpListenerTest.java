@@ -33,43 +33,69 @@ public class BasicTcpListenerTest {
                 if (inputLine.startsWith(BYE)) break;
             }
 
-            out.println(Thread.currentThread().getName());
             return true;
         }
     }
 
     private class Client implements Runnable {
         private int id;
-
+        private Socket echoSocket;
+        private PrintWriter out;
+        private BufferedReader in;
         private Client(int id) {
             this.id = id;
         }
 
         @Override
         public void run() {
-            Socket echoSocket;
-            PrintWriter out;
-            BufferedReader in;
+
 
             try {
-                echoSocket = new Socket(LOCALHOST, PORT);
-                out = new PrintWriter(echoSocket.getOutputStream(), true);
-                in = new BufferedReader(new InputStreamReader(
-                        echoSocket.getInputStream()));
-                out.println("Hi. I am client " + id);
-                out.println(BYE + " from " + id);
+                connect();
 
-                String inputLine;
-                while ((inputLine = in.readLine()) != null) {
-                    System.out.println(inputLine);
+                for(int i = 0; i < 5; i++) {
+
+                    out.println("Hi. I am client " + id);
+                    out.println(BYE + " from " + id);
+
+                    if(out.checkError()) {
+                        System.out.println("Client " + id + " reconnecting...");
+                        closeConnection();
+                        connect();
+                        out.println("Hi. I am client " + id);
+                        out.println(BYE + " from " + id);
+                    }
+
+                    String inputLine;
+                    while ((inputLine = in.readLine()) != null) {
+                        System.out.println(inputLine);
+                        if (inputLine.startsWith(BYE)) break;
+                    }
+
+                    Thread.sleep((long) (150 + Math.random() * 1000));
                 }
 
-                out.close();
-                in.close();
-                echoSocket.close();
+                Thread.sleep(2000);
+
+                closeConnection();
             } catch (Exception e) {
+                System.err.println("Error for " + id);
+                e.printStackTrace();
                 Assert.fail();
             }
+        }
+
+        private void closeConnection() throws IOException {
+            out.close();
+            in.close();
+            echoSocket.close();
+        }
+
+        private void connect() throws IOException {
+            echoSocket = new Socket(LOCALHOST, PORT);
+            out = new PrintWriter(echoSocket.getOutputStream(), true);
+            in = new BufferedReader(new InputStreamReader(
+                    echoSocket.getInputStream()));
         }
     }
 
@@ -77,7 +103,7 @@ public class BasicTcpListenerTest {
     public void prepare() throws IOException {
         int workers = 10;
 
-        connectionHandler = new BasicTcpConnectionHandler(workers, new EchoProtocolHandler());
+        connectionHandler = new PersistentTcpConnectionHandler(workers, new EchoProtocolHandler(), 500);
         tcpListener = new BasicTcpListener(connectionHandler, PORT);
     }
 
@@ -87,7 +113,7 @@ public class BasicTcpListenerTest {
         connectionHandler.shutdown();
     }
 
-    @Test(timeout = 1000)
+    @Test(timeout = 30000)
     public void basicTest() throws InterruptedException {
         final List<Thread> failedClients = new ArrayList<Thread>();
         List<Thread> clients = new ArrayList<Thread>();
@@ -102,6 +128,7 @@ public class BasicTcpListenerTest {
             });
             client.start();
             clients.add(client);
+            Thread.sleep((long) (150 + Math.random() * 150));
         }
 
         for (Thread t : clients) {

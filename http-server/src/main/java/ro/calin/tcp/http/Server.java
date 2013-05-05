@@ -16,6 +16,8 @@ import sun.plugin.dom.exception.InvalidStateException;
  * @author cavasilcai
  */
 public class Server {
+    public static final long MAX_IDLE_TIME = 15000; //15 sec
+
     private TcpListener tcpListener;
     private TcpConnectionHandler tcpConnectionHandler;
     private ProtocolHandler protocolHandler;
@@ -66,7 +68,7 @@ public class Server {
         httpRequestParser = new BasicHttpRequestParser();
         protocolHandler = new BasicHttpHandler(httpRequestParser, httpRouter);
         tcpConnectionHandler = keepAlive?
-                new PersistentTcpConnectionHandler() :
+                new PersistentTcpConnectionHandler(workers, protocolHandler, MAX_IDLE_TIME) :
                 new BasicTcpConnectionHandler(workers, protocolHandler);
         tcpListener = new BasicTcpListener(tcpConnectionHandler, port);
         return this;
