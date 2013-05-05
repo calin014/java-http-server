@@ -21,11 +21,11 @@ import static ro.calin.tcp.http.response.HttpStatus.NOT_FOUND;
  *
  * TODO: try to comply with http://www.jmarshall.com/easy/http/#http1.1servers
  */
-public class HttpHandler implements ProtocolHandler {
+public class BasicHttpHandler implements ProtocolHandler {
     private HttpRequestParser requestParser;
     private HttpRouter httpRouter;
 
-    public HttpHandler(HttpRequestParser requestParser, HttpRouter httpRouter) {
+    public BasicHttpHandler(HttpRequestParser requestParser, HttpRouter httpRouter) {
         this.requestParser = requestParser;
         this.httpRouter = httpRouter;
     }
@@ -50,6 +50,6 @@ public class HttpHandler implements ProtocolHandler {
         }
 
         //TODO: return based on 'Connection: close' header
-        return true;
+        return false;
     }
 }

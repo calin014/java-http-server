@@ -1,12 +1,9 @@
 package ro.calin.tcp.http;
 
 import java.io.IOException;
-import ro.calin.tcp.BasicTcpConnectionHandler;
-import ro.calin.tcp.BasicTcpListener;
-import ro.calin.tcp.KeepAliveTcpConnectionHandler;
-import ro.calin.tcp.ProtocolHandler;
-import ro.calin.tcp.TcpConnectionHandler;
-import ro.calin.tcp.TcpListener;
+
+import ro.calin.tcp.*;
+import ro.calin.tcp.PersistentTcpConnectionHandler;
 import ro.calin.tcp.http.request.HttpMethod;
 import ro.calin.tcp.http.request.parser.BasicHttpRequestParser;
 import ro.calin.tcp.http.request.parser.HttpRequestParser;
@@ -67,9 +64,9 @@ public class Server {
         started = true;
 
         httpRequestParser = new BasicHttpRequestParser();
-        protocolHandler = new HttpHandler(httpRequestParser, httpRouter);
+        protocolHandler = new BasicHttpHandler(httpRequestParser, httpRouter);
         tcpConnectionHandler = keepAlive?
-                new KeepAliveTcpConnectionHandler() :
+                new PersistentTcpConnectionHandler() :
                 new BasicTcpConnectionHandler(workers, protocolHandler);
         tcpListener = new BasicTcpListener(tcpConnectionHandler, port);
         return this;
