@@ -1,0 +1,50 @@
+<!doctype html>
+<html>
+<head>
+	<script src="http://ajax.googleapis.com/ajax/libs/jquery/1.9.1/jquery.min.js"></script>
+	<script>
+$(function(){
+    var makeDraggable = function() {
+        return $('<div></div>')
+        .attr('draggable', 'true')
+        .css({width: 100, height: 100, 'background-color' : 'red', margin:10, float: 'left'})
+        .bind("dragstart", function(e){
+            e.originalEvent.dataTransfer.setData('Text', $(this).attr('id'));
+        });
+    };
+
+    var iframes = $('iframe');
+    iframes.each(function() {
+		var iframe = this;
+        var body = $(this).contents().find('body').width(800).height(120);
+        
+		body.bind('dragover', function(e){e.preventDefault()})
+		
+        body.bind('drop', function(e){
+            var id = e.originalEvent.dataTransfer.getData('Text');
+			var frameId = id.split('-')[0];
+			
+            var draggable = $("#"+frameId).contents().find("#"+id);
+			draggable.fadeOut(200, function(){$(this).appendTo(body).fadeIn(200)});
+			var xhr = $.post('/pics')
+			xhr.always(function(){
+				console.log("Post Response Status:", xhr.status);
+				console.log("Id:", draggable.attr('id'));
+			});
+        })
+		
+        for(var a = 0; a < 4; a++) {
+            var id = $(this).attr('id')+"-"+a;
+            body.append(makeDraggable().text(id).attr('id', id));
+        }
+    })
+})
+	</script>
+</head>
+<body>
+<iframe id="iframe0" width="820px" height="140px"></iframe>
+<iframe id="iframe1" width="820px" height="140px"></iframe>
+<iframe id="iframe2" width="820px" height="140px"></iframe>
+<iframe id="iframe3" width="820px" height="140px"></iframe>
+</body>
+</html>
