@@ -38,9 +38,9 @@ public class BasicHttpHandler implements ProtocolHandler {
         try {
             httpRequest = requestParser.parse(inputStream);
             httpResponse = new HttpResponse(outputStream, httpRequest.getVersion());
-            RequestHandler servler = httpRouter.findRoute(httpRequest.getMethod(), httpRequest.getUrl());
-            if(servler != null) {
-                servler.handle(httpRequest, httpResponse);
+            RequestHandler requestHandler = httpRouter.findRoute(httpRequest.getMethod(), httpRequest.getUrl());
+            if(requestHandler != null) {
+                requestHandler.handle(httpRequest, httpResponse);
             } else {
                 httpResponse.status(NOT_FOUND);
             }
