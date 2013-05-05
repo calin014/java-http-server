@@ -22,15 +22,19 @@ $(function(){
 		
         body.bind('drop', function(e){
             var id = e.originalEvent.dataTransfer.getData('Text');
-			var frameId = id.split('-')[0];
-			
-            var draggable = $("#"+frameId).contents().find("#"+id);
-			draggable.fadeOut(200, function(){$(this).appendTo(body).fadeIn(200)});
-			var xhr = $.post('/pics')
-			xhr.always(function(){
-				console.log("Post Response Status:", xhr.status);
-				console.log("Id:", draggable.attr('id'));
-			});
+			iframes.each(function() {
+				if(this == iframe) return true; //skip drag/drops in the same iframe
+                var draggable = $(this).contents().find("#"+id);
+                if(draggable.length == 1) {
+                    draggable.fadeOut(200, function(){$(this).appendTo(body).fadeIn(200)});
+					var xhr = $.post('/pics')
+					xhr.always(function(){
+						console.log("Post Response Status:", xhr.status)
+						console.log("Id:", draggable.attr('id'))
+					})
+                    return false;
+                }
+            })
         })
 		
         for(var a = 0; a < 4; a++) {
