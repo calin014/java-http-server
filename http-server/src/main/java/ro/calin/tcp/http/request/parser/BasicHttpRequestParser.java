@@ -41,7 +41,7 @@ public class BasicHttpRequestParser implements HttpRequestParser {
         int i = line.indexOf(':');
         if(i == -1) throwBadRequest();
 
-        request.header(line.substring(0, i).trim(), line.substring(i + 1).trim());
+        request.header(line.substring(0, i).trim().toLowerCase(), line.substring(i + 1).trim());
     }
 
     private void parseMethodAndUrl(String line, HttpRequest request) throws BadRequestException {

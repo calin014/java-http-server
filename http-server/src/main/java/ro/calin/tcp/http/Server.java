@@ -7,6 +7,8 @@ import ro.calin.tcp.PersistentTcpConnectionHandler;
 import ro.calin.tcp.http.request.HttpMethod;
 import ro.calin.tcp.http.request.parser.BasicHttpRequestParser;
 import ro.calin.tcp.http.request.parser.HttpRequestParser;
+import ro.calin.tcp.http.response.BasicHttpResponseSerializer;
+import ro.calin.tcp.http.response.HttpResponseSerializer;
 import ro.calin.tcp.http.route.BasicHttpRouter;
 import ro.calin.tcp.http.route.HttpRouter;
 import ro.calin.tcp.http.route.RequestHandler;
@@ -66,9 +68,10 @@ public class Server {
         started = true;
 
         httpRequestParser = new BasicHttpRequestParser();
+        HttpResponseSerializer responseSerializer = new BasicHttpResponseSerializer();
         protocolHandler = keepAlive?
-                new BasicHttpHandler(httpRequestParser, httpRouter, keepAlive, MAX_IDLE_TIME) :
-                new BasicHttpHandler(httpRequestParser, httpRouter);
+                new BasicHttpHandler(httpRequestParser, httpRouter, keepAlive, MAX_IDLE_TIME, responseSerializer) :
+                new BasicHttpHandler(httpRequestParser, httpRouter, responseSerializer);
         tcpConnectionHandler = keepAlive?
                 new PersistentTcpConnectionHandler(workers, protocolHandler, MAX_IDLE_TIME) :
                 new BasicTcpConnectionHandler(workers, protocolHandler);

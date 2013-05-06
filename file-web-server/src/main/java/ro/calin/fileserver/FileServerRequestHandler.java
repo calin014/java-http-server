@@ -1,13 +1,10 @@
 package ro.calin.fileserver;
 
-import java.io.DataInputStream;
-import java.io.File;
-import java.io.FileInputStream;
-import java.io.FileNotFoundException;
-import java.io.IOException;
-import java.io.UnsupportedEncodingException;
+import java.io.*;
 import java.util.HashMap;
 import java.util.Map;
+
+import org.apache.commons.io.IOUtils;
 import ro.calin.tcp.http.request.HttpRequest;
 import ro.calin.tcp.http.response.HttpResponse;
 import ro.calin.tcp.http.response.HttpStatus;
@@ -47,40 +44,30 @@ public class FileServerRequestHandler implements RequestHandler {
     }
 
     @Override
-    public void handle(HttpRequest request, HttpResponse response) {
-        //TODO: do not allow access to upper: eg.: ../smfn
+    public HttpResponse handle(HttpRequest request) {
+        //TODO: do not allow access to upper: eg.: ../smfn        ???
         File file = new File(root, request.getUrl());
         if (!file.exists()) {
-            response.status(HttpStatus.NOT_FOUND);
+            return HttpResponse.status(HttpStatus.NOT_FOUND);
         } else if (file.isDirectory()) {
-            doDirectoryListing(file, request.getUrl(), response);
+            return directoryListingResponse(file, request.getUrl());
         } else {
-            sendFile(file, response);
+            return fileResponse(file);
         }
     }
 
-    private void sendFile(File file, HttpResponse response) {
+    private HttpResponse fileResponse(File file) {
         try {
-            byte[] data = loadData(file);
-
-            response
+            return HttpResponse
                     .status(HttpStatus.OK)
                     .header("Content-Type", guessMimeType(file))
-                    .header("Content-Length", data.length)
-                    .body(data);
+                    .header("Content-Length", file.length())
+                    .body(new FileInputStream(file));
         } catch (IOException e) {
             if (e instanceof FileNotFoundException)
-                response.status(HttpStatus.NOT_FOUND);
-            else response.status(HttpStatus.INTERNAL_ERROR);
+                return HttpResponse.status(HttpStatus.NOT_FOUND);
+            else return HttpResponse.status(HttpStatus.INTERNAL_ERROR);
         }
-    }
-
-    private byte[] loadData(File file) throws IOException {
-        byte [] fileData = new byte[(int)file.length()];
-        DataInputStream dis = new DataInputStream((new FileInputStream(file)));
-        dis.readFully(fileData);
-        dis.close();
-        return fileData;
     }
 
     private String guessMimeType(File file) {
@@ -96,15 +83,16 @@ public class FileServerRequestHandler implements RequestHandler {
         return null;
     }
 
-    private void doDirectoryListing(File directory, String path, HttpResponse response) {
+    private HttpResponse directoryListingResponse(File directory, String path) {
         try {
-            byte[] html = buildListening(directory, path).getBytes("UTF-8");
-            response
+            String html = buildListening(directory, path);
+            InputStream htmlStream = IOUtils.toInputStream(html, "UTF-8");
+            return HttpResponse
                     .status(HttpStatus.OK)
                     .header("Content-Type", "text/html")
-                    .header("Content-Length", html.length)
-                    .body(html);
-        } catch (UnsupportedEncodingException e) {
+                    .body(htmlStream);
+        } catch (Exception e) {
+            return HttpResponse.status(HttpStatus.INTERNAL_ERROR);
         }
     }
 

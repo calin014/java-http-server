@@ -6,6 +6,7 @@ import ro.calin.tcp.http.request.parser.BadRequestException;
 import ro.calin.tcp.http.request.parser.HttpRequestParser;
 import ro.calin.tcp.http.request.HttpRequest;
 import ro.calin.tcp.http.response.HttpResponse;
+import ro.calin.tcp.http.response.HttpResponseSerializer;
 import ro.calin.tcp.http.route.HttpRouter;
 import ro.calin.tcp.http.route.RequestHandler;
 
@@ -24,18 +25,23 @@ import static ro.calin.tcp.http.response.HttpStatus.NOT_FOUND;
 public class BasicHttpHandler implements ProtocolHandler {
     private HttpRequestParser requestParser;
     private HttpRouter httpRouter;
+    private HttpResponseSerializer responseSerializer;
+
     private boolean keepAlive;
     private String keepAliveTimeout;
 
-    public BasicHttpHandler(HttpRequestParser requestParser, HttpRouter httpRouter) {
+    public BasicHttpHandler(HttpRequestParser requestParser, HttpRouter httpRouter, HttpResponseSerializer responseSerializer) {
         this.requestParser = requestParser;
         this.httpRouter = httpRouter;
+        this.responseSerializer = responseSerializer;
         this.keepAlive = false;
     }
 
-    public BasicHttpHandler(HttpRequestParser requestParser, HttpRouter httpRouter, boolean keepAlive, long keepAliveTimeout) {
+    public BasicHttpHandler(HttpRequestParser requestParser, HttpRouter httpRouter, boolean keepAlive, long keepAliveTimeout, HttpResponseSerializer responseSerializer) {
         this.requestParser = requestParser;
         this.httpRouter = httpRouter;
+        this.responseSerializer = responseSerializer;
+
         this.keepAlive = keepAlive;
         //TODO: discard connection after max requests in the connection handler
         this.keepAliveTimeout = "timeout=" + keepAliveTimeout + ", max=500";
@@ -43,41 +49,42 @@ public class BasicHttpHandler implements ProtocolHandler {
 
     @Override
     public boolean handle(InputStream inputStream, OutputStream outputStream) throws IOException {
-        HttpRequest httpRequest;
-        HttpResponse httpResponse;
+        HttpRequest request;
+        HttpResponse response;
 
         boolean persistConnection = keepAlive;
 
         try {
-            httpRequest = requestParser.parse(inputStream);
+            request = requestParser.parse(inputStream);
 
             if (persistConnection) {
-                if (httpRequest.getVersion() == HttpVersion.HTTP10 || httpRequest.hasHeader("Connection", "close"))
+                if ((request.getVersion() == HttpVersion.HTTP10 && !request.hasHeader("Connection", "Keep-Alive"))
+                        || request.hasHeader("Connection", "close"))
                     persistConnection = false;
             }
 
-            httpResponse = new HttpResponse(outputStream, httpRequest.getVersion());
-            RequestHandler requestHandler = httpRouter.findRoute(httpRequest.getMethod(), httpRequest.getUrl());
+            RequestHandler requestHandler = httpRouter.findRoute(request.getMethod(), request.getUrl());
             if(requestHandler != null) {
-                requestHandler.handle(httpRequest, httpResponse);
+                response = requestHandler.handle(request);
 
                 if(persistConnection) {
-//                    if ("close".equals(httpResponse.getHeaders().get("Connection"))) persistConnection = false;
+                    if (response.hasHeader("Connection", "close")) persistConnection = false;
                 }
             } else {
-                httpResponse.status(NOT_FOUND);
+                response = HttpResponse.status(NOT_FOUND);
             }
         } catch (BadRequestException e) {
-            httpResponse = new HttpResponse(outputStream, HttpVersion.HTTP11);
-            httpResponse.status(BAD_REQUEST);
+            response = HttpResponse.status(BAD_REQUEST);
         }
 
         if (persistConnection) {
-            httpResponse.header("Connection", "Keep-Alive");
-            httpResponse.header("Keep-Alive", keepAliveTimeout);
+            response.header("Connection", "Keep-Alive");
+            response.header("Keep-Alive", keepAliveTimeout);
         } else {
-            httpResponse.header("Connection", "close");
+            response.header("Connection", "close");
         }
+
+        responseSerializer.serialize(response, outputStream);
 
         return persistConnection;
     }

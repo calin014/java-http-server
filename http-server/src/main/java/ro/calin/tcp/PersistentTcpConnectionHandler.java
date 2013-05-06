@@ -79,6 +79,7 @@ public class PersistentTcpConnectionHandler implements TcpConnectionHandler {
                     e.printStackTrace(); //TODO: log
                 }
             }
+            System.err.println("Active: " + activeConnections.size());
         }
 
         private void moveIncomingToActive() {
@@ -116,7 +117,8 @@ public class PersistentTcpConnectionHandler implements TcpConnectionHandler {
 
             try {
                 keepConnection = protocolHandler.handle(conn.socket.getInputStream(), conn.socket.getOutputStream());
-            } catch (IOException e) {
+            } catch (Exception e) {
+                e.printStackTrace();
             }
 
             if (keepConnection) conn.lastUsed = System.currentTimeMillis();

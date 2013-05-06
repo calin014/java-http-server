@@ -102,6 +102,7 @@ public class HttpRequest {
     }
 
     public boolean hasHeader(String key, String value) {
+        key = key.toLowerCase();
         return headers != null && headers.get(key) != null && headers.get(key).contains(value);
     }
 
