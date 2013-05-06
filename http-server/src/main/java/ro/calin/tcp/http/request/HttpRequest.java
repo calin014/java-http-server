@@ -101,6 +101,10 @@ public class HttpRequest {
         list.add(value);
     }
 
+    public boolean hasHeader(String key, String value) {
+        return headers != null && headers.get(key) != null && headers.get(key).contains(value);
+    }
+
     @Override
     public boolean equals(Object o) {
         if (this == o) return true;

@@ -66,7 +66,9 @@ public class Server {
         started = true;
 
         httpRequestParser = new BasicHttpRequestParser();
-        protocolHandler = new BasicHttpHandler(httpRequestParser, httpRouter);
+        protocolHandler = keepAlive?
+                new BasicHttpHandler(httpRequestParser, httpRouter, keepAlive, MAX_IDLE_TIME) :
+                new BasicHttpHandler(httpRequestParser, httpRouter);
         tcpConnectionHandler = keepAlive?
                 new PersistentTcpConnectionHandler(workers, protocolHandler, MAX_IDLE_TIME) :
                 new BasicTcpConnectionHandler(workers, protocolHandler);

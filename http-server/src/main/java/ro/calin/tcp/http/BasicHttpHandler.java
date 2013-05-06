@@ -24,10 +24,21 @@ import static ro.calin.tcp.http.response.HttpStatus.NOT_FOUND;
 public class BasicHttpHandler implements ProtocolHandler {
     private HttpRequestParser requestParser;
     private HttpRouter httpRouter;
+    private boolean keepAlive;
+    private String keepAliveTimeout;
 
     public BasicHttpHandler(HttpRequestParser requestParser, HttpRouter httpRouter) {
         this.requestParser = requestParser;
         this.httpRouter = httpRouter;
+        this.keepAlive = false;
+    }
+
+    public BasicHttpHandler(HttpRequestParser requestParser, HttpRouter httpRouter, boolean keepAlive, long keepAliveTimeout) {
+        this.requestParser = requestParser;
+        this.httpRouter = httpRouter;
+        this.keepAlive = keepAlive;
+        //TODO: discard connection after max requests in the connection handler
+        this.keepAliveTimeout = "timeout=" + keepAliveTimeout + ", max=500";
     }
 
     @Override
@@ -35,12 +46,24 @@ public class BasicHttpHandler implements ProtocolHandler {
         HttpRequest httpRequest;
         HttpResponse httpResponse;
 
+        boolean persistConnection = keepAlive;
+
         try {
             httpRequest = requestParser.parse(inputStream);
+
+            if (persistConnection) {
+                if (httpRequest.getVersion() == HttpVersion.HTTP10 || httpRequest.hasHeader("Connection", "close"))
+                    persistConnection = false;
+            }
+
             httpResponse = new HttpResponse(outputStream, httpRequest.getVersion());
             RequestHandler requestHandler = httpRouter.findRoute(httpRequest.getMethod(), httpRequest.getUrl());
             if(requestHandler != null) {
                 requestHandler.handle(httpRequest, httpResponse);
+
+                if(persistConnection) {
+//                    if ("close".equals(httpResponse.getHeaders().get("Connection"))) persistConnection = false;
+                }
             } else {
                 httpResponse.status(NOT_FOUND);
             }
@@ -49,7 +72,13 @@ public class BasicHttpHandler implements ProtocolHandler {
             httpResponse.status(BAD_REQUEST);
         }
 
-        //TODO: return based on 'Connection: close' header
-        return false;
+        if (persistConnection) {
+            httpResponse.header("Connection", "Keep-Alive");
+            httpResponse.header("Keep-Alive", keepAliveTimeout);
+        } else {
+            httpResponse.header("Connection", "close");
+        }
+
+        return persistConnection;
     }
 }
