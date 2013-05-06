@@ -4,6 +4,8 @@ import java.io.*;
 import java.util.HashMap;
 import java.util.Map;
 
+import org.apache.commons.io.FileUtils;
+import org.apache.commons.io.FilenameUtils;
 import org.apache.commons.io.IOUtils;
 import ro.calin.tcp.http.request.HttpRequest;
 import ro.calin.tcp.http.response.HttpResponse;
@@ -66,21 +68,13 @@ public class FileServerRequestHandler implements RequestHandler {
         } catch (IOException e) {
             if (e instanceof FileNotFoundException)
                 return HttpResponse.status(HttpStatus.NOT_FOUND);
-            else return HttpResponse.status(HttpStatus.INTERNAL_ERROR);
+            else return HttpResponse.status(HttpStatus.INTERNAL_SERVER_ERROR);
         }
     }
 
     private String guessMimeType(File file) {
-        final String mime = types.get(getExtension(file.getName()));
+        final String mime = types.get(FilenameUtils.getExtension(file.getName()));
         return mime == null? "application/octet-stream" : mime;
-    }
-
-    private String getExtension(String name) {
-        int i = name.lastIndexOf('.');
-        if (i > 0) {
-            return name.substring(i+1);
-        }
-        return null;
     }
 
     private HttpResponse directoryListingResponse(File directory, String path) {
@@ -92,7 +86,7 @@ public class FileServerRequestHandler implements RequestHandler {
                     .header("Content-Type", "text/html")
                     .body(htmlStream);
         } catch (Exception e) {
-            return HttpResponse.status(HttpStatus.INTERNAL_ERROR);
+            return HttpResponse.status(HttpStatus.INTERNAL_SERVER_ERROR);
         }
     }
 

@@ -79,7 +79,6 @@ public class PersistentTcpConnectionHandler implements TcpConnectionHandler {
                     e.printStackTrace(); //TODO: log
                 }
             }
-            System.err.println("Active: " + activeConnections.size());
         }
 
         private void moveIncomingToActive() {
@@ -153,7 +152,7 @@ public class PersistentTcpConnectionHandler implements TcpConnectionHandler {
     public void handle(final Socket socket) {
         if(!running) return;
         synchronized (incomingConnections) {
-            incomingConnections.add(new Connection(socket, Long.MAX_VALUE));
+            incomingConnections.add(new Connection(socket, System.currentTimeMillis()));
         }
     }
 }

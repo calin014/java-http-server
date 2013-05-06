@@ -25,6 +25,7 @@ public class BasicHttpResponseSerializer implements HttpResponseSerializer {
 
     private void writeVersionAndStatus(PrintWriter pw, HttpStatus status) {
         pw.print(HttpVersion.HTTP11.getVersion() + " " + status.getStatus() + CRLF);
+        pw.flush();
     }
 
     private void writeHeaders(PrintWriter pw, Map<String, List<String>> headers) {
@@ -37,6 +38,7 @@ public class BasicHttpResponseSerializer implements HttpResponseSerializer {
 
     private void writeHeader(PrintWriter pw, String name, String value) {
         pw.print(name.trim() + ": " + value.trim() + CRLF);
+        pw.flush();
     }
 
     private void writeDateHeaderIfNecessary(PrintWriter pw, Map<String, List<String>> headers) {
@@ -53,6 +55,7 @@ public class BasicHttpResponseSerializer implements HttpResponseSerializer {
         InputStream body = response.getBody();
         byte[] loaded = null;
         long len = 0;
+
         if(body != null) {
             try {
                 len = Long.parseLong(response.headerValue("Content-Length"));
@@ -69,6 +72,10 @@ public class BasicHttpResponseSerializer implements HttpResponseSerializer {
 
             if(!response.hasHeader("Content-Type")) {
                 writeHeader(pw, "Content-Type", "application/octet-stream");
+            }
+        } else {
+            if(!response.hasHeader("Content-Length")) {
+                writeHeader(pw, "Content-Length", "0");
             }
         }
 
@@ -89,5 +96,7 @@ public class BasicHttpResponseSerializer implements HttpResponseSerializer {
                 IOUtils.closeQuietly(body);
             }
         }
+
+        try {stream.flush();} catch (IOException e) {}
     }
 }

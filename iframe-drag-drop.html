@@ -21,6 +21,7 @@ $(function(){
 		body.bind('dragover', function(e){e.preventDefault()})
 		
         body.bind('drop', function(e){
+            e.preventDefault();
             var id = e.originalEvent.dataTransfer.getData('Text');
 			iframes.each(function() {
 				if(this == iframe) return true; //skip drag/drops in the same iframe

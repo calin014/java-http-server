@@ -15,7 +15,7 @@ public enum HttpStatus {
     FORBIDDEN(403, "Forbidden"),
     NOT_FOUND(404, "Not Found"),
     RANGE_NOT_SATISFIABLE(416, "Requested Range Not Satisfiable"),
-    INTERNAL_ERROR(500, "Internal Server Error");
+    INTERNAL_SERVER_ERROR(500, "Internal Server Error");
 
     private int status;
     private String desc;
