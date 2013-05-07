@@ -11,6 +11,7 @@
     <modules>
         <module>http-server</module>
         <module>file-web-server</module>
+        <module>web-app</module>
     </modules>
 
 

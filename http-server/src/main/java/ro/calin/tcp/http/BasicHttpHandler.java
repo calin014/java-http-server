@@ -15,6 +15,7 @@ import java.io.InputStream;
 import java.io.OutputStream;
 
 import static ro.calin.tcp.http.response.HttpStatus.BAD_REQUEST;
+import static ro.calin.tcp.http.response.HttpStatus.INTERNAL_SERVER_ERROR;
 import static ro.calin.tcp.http.response.HttpStatus.NOT_FOUND;
 
 /**
@@ -65,7 +66,16 @@ public class BasicHttpHandler implements ProtocolHandler {
 
             RequestHandler requestHandler = httpRouter.findRoute(request.getMethod(), request.getUrl());
             if(requestHandler != null) {
-                response = requestHandler.handle(request);
+                try {
+                    response = requestHandler.handle(request);
+                } catch (Exception e) {
+                    //TODO log
+                    response = HttpResponse.status(INTERNAL_SERVER_ERROR);
+                }
+
+                if (response == null) {
+                    response = HttpResponse.status(NOT_FOUND);
+                }
 
                 if(persistConnection) {
                     if (response.hasHeader("Connection", "close")) persistConnection = false;
