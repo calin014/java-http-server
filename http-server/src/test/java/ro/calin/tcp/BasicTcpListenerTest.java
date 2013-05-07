@@ -1,5 +1,6 @@
 package ro.calin.tcp;
 
+import org.apache.log4j.BasicConfigurator;
 import org.junit.After;
 import org.junit.Assert;
 import org.junit.Before;
@@ -20,6 +21,10 @@ public class BasicTcpListenerTest {
 
     private TcpListener tcpListener;
     private TcpConnectionHandler connectionHandler;
+
+    static {
+        BasicConfigurator.configure();
+    }
 
     private static class EchoProtocolHandler implements ProtocolHandler {
         @Override
@@ -67,6 +72,7 @@ public class BasicTcpListenerTest {
                     }
 
                     String inputLine;
+                    //TODO: server might close connection here for some reason
                     while ((inputLine = in.readLine()) != null) {
                         System.out.println(inputLine);
                         if (inputLine.startsWith(BYE)) break;
@@ -79,6 +85,7 @@ public class BasicTcpListenerTest {
 
                 closeConnection();
             } catch (Exception e) {
+                //TODO: we should not fail the first time
                 System.err.println("Error for " + id);
                 e.printStackTrace();
                 Assert.fail();
@@ -103,7 +110,7 @@ public class BasicTcpListenerTest {
     public void prepare() throws IOException {
         int workers = 10;
 
-        connectionHandler = new PersistentTcpConnectionHandler(workers, new EchoProtocolHandler(), 500);
+        connectionHandler = new PersistentTcpConnectionHandler(workers, new EchoProtocolHandler(), 1000);
         tcpListener = new BasicTcpListener(connectionHandler, PORT);
     }
 

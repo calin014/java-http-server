@@ -2,6 +2,7 @@ package ro.calin.fileserver;
 
 import java.io.*;
 
+import org.apache.log4j.BasicConfigurator;
 import org.kohsuke.args4j.CmdLineException;
 import org.kohsuke.args4j.CmdLineParser;
 import org.kohsuke.args4j.Option;
@@ -26,6 +27,8 @@ public class FileServer {
             parser.printUsage(System.err);
             return;
         }
+
+        BasicConfigurator.configure();
 
         final Server server = Server.create()
                 .workers(o.workers)

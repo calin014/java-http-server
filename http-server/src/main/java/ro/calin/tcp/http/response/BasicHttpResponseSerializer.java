@@ -51,7 +51,7 @@ public class BasicHttpResponseSerializer implements HttpResponseSerializer {
     }
 
     private void writeBody(OutputStream stream, PrintWriter pw, HttpResponse response) {
-        //write content length and type if need
+        //write content length and type if needed
         InputStream body = response.getBody();
         byte[] loaded = null;
         long len = 0;
