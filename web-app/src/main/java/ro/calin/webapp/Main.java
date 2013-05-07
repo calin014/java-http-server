@@ -19,7 +19,7 @@ public class Main {
                                     .workers(5)
                                     .port(12345)
                                     .keepAlive(true)
-                                    .route(GET, "/webapp", new WebappRequestHandler())
+                                    .route(GET, "/", new WebappRequestHandler())
                                     .route(POST, "/api(/.*)*", new ApiRequestHandler())
                                     .start();
 

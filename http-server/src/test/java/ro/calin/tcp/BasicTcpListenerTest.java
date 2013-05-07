@@ -53,8 +53,6 @@ public class BasicTcpListenerTest {
 
         @Override
         public void run() {
-
-
             try {
                 connect();
 

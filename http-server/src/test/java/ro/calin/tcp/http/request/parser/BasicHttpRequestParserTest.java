@@ -42,18 +42,18 @@ public class BasicHttpRequestParserTest {
                 .param("test", "a")
                 .param("test", "b")
                 .param("othertest", "c")
-                .header("Host", "www.jmarshall.com")
-                .header("Connection", "keep-alive")
-                .header("Cache-Control", "max-age=0")
-                .header("Accept", "text/html,application/xhtml+xml,application/xml;q=0.9,*/*;q=0.8")
-                .header("User-Agent", "Mozilla/5.0 (Windows NT 6.2; WOW64) AppleWebKit/537.31 (KHTML, like Gecko) Chrome/26.0.1410.64 Safari/537.31")
-                .header("Referer", "https://www.google.ro/")
-                .header("Accept-Encoding", "gzip,deflate,sdch")
-                .header("Accept-Language", "en-US,en;q=0.8,ro;q=0.6")
-                .header("Accept-Charset", "ISO-8859-1,utf-8;q=0.7,*;q=0.3")
-                .header("Cookie", "_tb_pingSent=1")
-                .header("If-None-Match", "\"1d69940-b070-50c690d7\"")
-                .header("If-Modified-Since", "Tue, 11 Dec 2012 01:48:07 GMT");
+                .header("host", "www.jmarshall.com")
+                .header("connection", "keep-alive")
+                .header("cache-control", "max-age=0")
+                .header("accept", "text/html,application/xhtml+xml,application/xml;q=0.9,*/*;q=0.8")
+                .header("user-agent", "Mozilla/5.0 (Windows NT 6.2; WOW64) AppleWebKit/537.31 (KHTML, like Gecko) Chrome/26.0.1410.64 Safari/537.31")
+                .header("referer", "https://www.google.ro/")
+                .header("accept-encoding", "gzip,deflate,sdch")
+                .header("accept-language", "en-US,en;q=0.8,ro;q=0.6")
+                .header("accept-charset", "ISO-8859-1,utf-8;q=0.7,*;q=0.3")
+                .header("cookie", "_tb_pingSent=1")
+                .header("if-none-match", "\"1d69940-b070-50c690d7\"")
+                .header("if-modified-since", "Tue, 11 Dec 2012 01:48:07 GMT");
 
         Assert.assertEquals(expected, actual);
     }
