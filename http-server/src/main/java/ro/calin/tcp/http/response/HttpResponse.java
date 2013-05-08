@@ -42,7 +42,7 @@ public class HttpResponse {
     public String headerValue(String name) {
         name = name.toLowerCase();
         List<String> current = headers.get(name);
-        if (current == null) return null;
+        if (current == null || current.size() == 0) return null;
         return current.get(0);
     }
 

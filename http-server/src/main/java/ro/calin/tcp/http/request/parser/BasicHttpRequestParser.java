@@ -3,45 +3,75 @@ package ro.calin.tcp.http.request.parser;
 import ro.calin.tcp.http.request.HttpMethod;
 import ro.calin.tcp.http.request.HttpRequest;
 import ro.calin.tcp.http.request.HttpVersion;
-import ro.calin.tcp.http.response.HttpResponse;
 
 import java.io.*;
+import org.apache.commons.io.IOUtils;
+import org.apache.log4j.Logger;
 
 /**
  * @author calin
- *
- * @see https://github.com/NanoHttpd/nanohttpd/blob/master/core/src/main/java/fi/iki/elonen/NanoHTTPD.java
  */
 public class BasicHttpRequestParser implements HttpRequestParser {
+    final static Logger LOGGER = Logger.getLogger(BasicHttpRequestParser.class);
+
     @Override
     public HttpRequest parse(InputStream stream) throws BadRequestException {
         HttpRequest request = new HttpRequest();
 
         try {
             BufferedReader in = new BufferedReader(new InputStreamReader(stream));
-
             parseMethodAndUrl(in.readLine(), request);
+            parseHeaders(in, request);
 
-            String line;
-            while ((line = in.readLine()) != null) {
-                if ("".equals(line)) break;
-                //TODO: headers can be on multiple rows(subsequent rows start with space or tab)
-                parseHeader(line, request);
-            }
-
-            //TODO: if it makes sense? eg.: not GET???
-            request.setBody(stream);
+            readAndParseBody(stream, request);
         } catch (IOException e) {
             throwBadRequest();
         }
         return request;
     }
 
-    private void parseHeader(String line, HttpRequest request) throws BadRequestException {
-        int i = line.indexOf(':');
-        if(i == -1) throwBadRequest();
+    private void readAndParseBody(InputStream stream, HttpRequest request) throws
+            IOException {
+        final String contentLength = request.headerValue("Content-Length");
+        if(contentLength != null) {
+            try {
+                final int len = Integer.parseInt(contentLength);
+                byte[] body = new byte[len];
+                //TODO: the stream has been read into to buffer readers buffer!!!!
+                IOUtils.read(stream, body);
+                request.setBody(body);
 
-        request.header(line.substring(0, i).trim().toLowerCase(), line.substring(i + 1).trim());
+                if (request.headerValueContains("Content-Type", "application/x-www-form-urlencoded")) {
+                    LOGGER.info("Content-Type is application/x-www-form-urlencoded, parsing body...");
+                    parseUrlParams(new String(body), request);
+                }
+            } catch (NumberFormatException e) {
+                LOGGER.info("Could not parse Content-Length header for request. Assuming no body.");
+            }
+        } else {
+            LOGGER.info("No Content-Length header. Assuming no body.");
+        }
+    }
+
+    private void parseHeaders(BufferedReader in, HttpRequest request) throws IOException, BadRequestException {
+        String line;
+        String name = null;
+        String value;
+        while ((line = in.readLine()) != null) {
+            if ("".equals(line)) break; //CRLF line
+
+            if(line.startsWith(" ") || line.startsWith("\t")) {
+                if(name == null) throwBadRequest();
+                value = line.trim();
+            } else {
+                int i = line.indexOf(':');
+                if(i == -1) throwBadRequest();
+                name = line.substring(0, i).trim();
+                value = line.substring(i + 1).trim();
+            }
+
+            request.header(name, value);
+        }
     }
 
     private void parseMethodAndUrl(String line, HttpRequest request) throws BadRequestException {

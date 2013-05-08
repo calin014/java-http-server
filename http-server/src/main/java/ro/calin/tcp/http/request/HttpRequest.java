@@ -1,7 +1,7 @@
 package ro.calin.tcp.http.request;
 
-import java.io.InputStream;
 import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
@@ -13,9 +13,12 @@ public class HttpRequest {
     private HttpMethod method;
     private String url;
     private HttpVersion version;
+
     private Map<String, List<String>> parameters;
-    private Map<String, List<String>> headers;
-    private InputStream body;
+
+    private Map<String, String> headers;
+
+    private byte[] body;
 
     public HttpMethod getMethod() {
         return method;
@@ -45,23 +48,11 @@ public class HttpRequest {
         return parameters;
     }
 
-    public void setParameters(Map<String, List<String>> parameters) {
-        this.parameters = parameters;
-    }
-
-    public Map<String, List<String>> getHeaders() {
-        return headers;
-    }
-
-    public void setHeaders(Map<String, List<String>> headers) {
-        this.headers = headers;
-    }
-
-    public InputStream getBody() {
+    public byte[] getBody() {
         return body;
     }
 
-    public void setBody(InputStream body) {
+    public void setBody(byte[] body) {
         this.body = body;
     }
 
@@ -81,14 +72,26 @@ public class HttpRequest {
     }
 
     public HttpRequest header(String name, String value) {
-        if (headers == null) headers = new HashMap<String, List<String>>();
-        add(headers, name, value);
+        if (headers == null) headers = new HashMap<String, String>();
+        //headers are case insensitive
+        name = name.toLowerCase();
+
+        //multiple values are comma separated
+        String current = headers.get(name);
+        current = current == null? value: current + ", " + value;
+        headers.put(name, current);
+
         return this;
     }
 
     public HttpRequest param(String name, String value) {
         if (parameters == null) parameters = new HashMap<String, List<String>>();
         add(parameters, name, value);
+        return this;
+    }
+
+    public HttpRequest body(byte[] body) {
+        setBody(body);
         return this;
     }
 
@@ -101,9 +104,19 @@ public class HttpRequest {
         list.add(value);
     }
 
-    public boolean hasHeader(String key, String value) {
+    public boolean headerValueContains(String key, String value) {
         key = key.toLowerCase();
         return headers != null && headers.get(key) != null && headers.get(key).contains(value);
+    }
+
+    public String headerValue(String name) {
+        return headers.get(name.toLowerCase());
+    }
+
+
+    public String paramValue(String name) {
+        final List<String> params = parameters.get(name.toLowerCase());
+        return params == null || params.size() == 0? null : params.get(0);
     }
 
     @Override
@@ -113,6 +126,7 @@ public class HttpRequest {
 
         HttpRequest that = (HttpRequest) o;
 
+        if (!Arrays.equals(body, that.body)) return false;
         if (headers != null ? !headers.equals(that.headers) : that.headers != null) return false;
         if (method != that.method) return false;
         if (parameters != null ? !parameters.equals(that.parameters) : that.parameters != null) return false;
@@ -129,6 +143,7 @@ public class HttpRequest {
         result = 31 * result + version.hashCode();
         result = 31 * result + (parameters != null ? parameters.hashCode() : 0);
         result = 31 * result + (headers != null ? headers.hashCode() : 0);
+        result = 31 * result + (body != null ? Arrays.hashCode(body) : 0);
         return result;
     }
 

@@ -28,7 +28,7 @@ $(function(){
                 var draggable = $(this).contents().find("#"+id);
                 if(draggable.length == 1) {
                     draggable.fadeOut(200, function(){$(this).appendTo(body).fadeIn(200)});
-					var xhr = $.post('/api')
+					var xhr = $.post('/api', {"id": id})
 					xhr.always(function(){
 						console.log("Post Response Status:", xhr.status)
 						console.log("Id:", draggable.attr('id'))

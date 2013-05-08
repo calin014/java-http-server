@@ -59,8 +59,9 @@ public class BasicHttpHandler implements ProtocolHandler {
             request = requestParser.parse(inputStream);
 
             if (persistConnection) {
-                if ((request.getVersion() == HttpVersion.HTTP10 && !request.hasHeader("Connection", "Keep-Alive"))
-                        || request.hasHeader("Connection", "close"))
+                if ((request.getVersion() == HttpVersion.HTTP10 && !request.headerValueContains("Connection",
+                        "Keep-Alive"))
+                        || request.headerValueContains("Connection", "close"))
                     persistConnection = false;
             }
 
