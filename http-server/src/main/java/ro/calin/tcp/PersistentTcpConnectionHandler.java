@@ -72,12 +72,14 @@ public class PersistentTcpConnectionHandler implements TcpConnectionHandler {
             while (it.hasNext()) {
                 Connection conn = it.next();
                 try {
-                    if (conn.beingHandled && System.currentTimeMillis() - conn.lastTouched > MAX_PROCESSING_TIME) {
-                        LogMF.warn(LOGGER, "Closing connection {0} because protocol is taking too long to respond or " +
-                                "handling job not started yet.", conn);
-                        IOUtils.closeQuietly(conn.socket);
-                        it.remove();
-                        conn.beingHandled = false;
+                    if (conn.beingHandled) {
+                        if(System.currentTimeMillis() - conn.lastTouched > MAX_PROCESSING_TIME) {
+                            LogMF.warn(LOGGER, "Closing connection {0} because protocol is taking too long to respond or " +
+                                    "handling job not started yet.", conn);
+                            IOUtils.closeQuietly(conn.socket);
+                            it.remove();
+                            conn.beingHandled = false; //if handling job didn't event start running
+                        }
                     } else {
                         if (System.currentTimeMillis() - conn.lastTouched > maxIdleTime) {
                             LogMF.info(LOGGER, "Closing connection {0} because it is inactive for more then {1} ms.", conn, maxIdleTime);

@@ -47,7 +47,7 @@ public class FileServerRequestHandler implements RequestHandler {
 
     @Override
     public HttpResponse handle(HttpRequest request) {
-        //TODO: do not allow access to upper: eg.: ../smfn        ???
+        //TODO: security??
         File file = new File(root, request.getUrl());
         if (!file.exists()) {
             return HttpResponse.status(HttpStatus.NOT_FOUND);
