@@ -62,26 +62,32 @@ public class Server {
         return this;
     }
 
-    public Server start() throws IOException {
+    public Server start() throws Exception {
         if (started) throw new IllegalStateException("Already started.");
         started = true;
 
-        httpRequestParser = new BasicHttpRequestParser();
-        HttpResponseSerializer responseSerializer = new BasicHttpResponseSerializer();
-        protocolHandler = keepAlive ?
-                new BasicHttpHandler(httpRequestParser, httpRouter, keepAlive, MAX_IDLE_TIME, responseSerializer) :
-                new BasicHttpHandler(httpRequestParser, httpRouter, responseSerializer);
-        tcpConnectionHandler = keepAlive ?
-                new PersistentTcpConnectionHandler(workers, protocolHandler, MAX_IDLE_TIME) :
-                new BasicTcpConnectionHandler(workers, protocolHandler);
-        tcpListener = new BasicTcpListener(tcpConnectionHandler, port);
+        try {
+            httpRequestParser = new BasicHttpRequestParser();
+            HttpResponseSerializer responseSerializer = new BasicHttpResponseSerializer();
+            protocolHandler = keepAlive ?
+                    new BasicHttpHandler(httpRequestParser, httpRouter, keepAlive, MAX_IDLE_TIME, responseSerializer) :
+                    new BasicHttpHandler(httpRequestParser, httpRouter, responseSerializer);
+            tcpConnectionHandler = keepAlive ?
+                    new PersistentTcpConnectionHandler(workers, protocolHandler, MAX_IDLE_TIME) :
+                    new BasicTcpConnectionHandler(workers, protocolHandler);
+            tcpListener = new BasicTcpListener(tcpConnectionHandler, port);
+        } catch (Exception e) {
+            stop();
+            throw e;
+        }
+
         return this;
     }
 
     public void stop() {
         if (!started) throw new IllegalStateException("Already stopped.");
-        tcpListener.shutdown();
-        tcpConnectionHandler.shutdown();
+        if(tcpListener != null) tcpListener.shutdown();
+        if(tcpConnectionHandler != null) tcpConnectionHandler.shutdown();
         started = false;
     }
 }

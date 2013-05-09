@@ -15,7 +15,7 @@ import static ro.calin.tcp.http.request.HttpMethod.GET;
  */
 public class FileServer {
 
-    public static void main(String[] args) throws IOException {
+    public static void main(String[] args) throws Exception {
         ServerOptions o = new ServerOptions();
         CmdLineParser parser = new CmdLineParser(o);
 

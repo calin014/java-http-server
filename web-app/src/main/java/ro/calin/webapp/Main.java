@@ -12,7 +12,7 @@ import static ro.calin.tcp.http.request.HttpMethod.POST;
  * @author cavasilcai
  */
 public class Main {
-    public static void main(String[] args) throws IOException {
+    public static void main(String[] args) throws Exception {
         BasicConfigurator.configure();
 
         final Server server = Server.create()
