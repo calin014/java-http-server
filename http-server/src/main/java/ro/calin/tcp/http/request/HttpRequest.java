@@ -149,12 +149,13 @@ public class HttpRequest {
 
     @Override
     public String toString() {
-        return "HttpRequest{" +
-                "method=" + method +
-                ", url='" + url + '\'' +
-                ", version=" + version +
-                ", parameters=" + parameters +
-                ", headers=" + headers +
+        return "\n\tHttpRequest{" +
+                "\n\tmethod=" + method +
+                ",\n\turl='" + url + '\'' +
+                ",\n\tversion=" + version +
+                ",\n\tparameters=" + parameters +
+                ",\n\theaders=" + headers +
+                ",\n\tbody=" + (body == null? null : "[...]") +
                 '}';
     }
 }

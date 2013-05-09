@@ -13,10 +13,14 @@ import ro.calin.tcp.http.route.RequestHandler;
 import java.io.IOException;
 
 /**
+ * Component used to assemble server components
+ * and create a HTTP server based on different options.
+ *
  * @author cavasilcai
  */
 public class Server {
     public static final long MAX_IDLE_TIME = 15000; //15 sec
+
     private TcpListener tcpListener;
     private TcpConnectionHandler tcpConnectionHandler;
     private ProtocolHandler protocolHandler;

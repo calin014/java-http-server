@@ -66,4 +66,13 @@ public class HttpResponse {
     public InputStream getBody() {
         return body;
     }
+
+    @Override
+    public String toString() {
+        return "\n\tHttpResponse{" +
+                "\n\tstatus=" + status +
+                ",\n\theaders=" + headers +
+                ",\n\tbody=" + (body == null? null : "[...]") +
+                '}';
+    }
 }

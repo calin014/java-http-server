@@ -3,9 +3,10 @@ package ro.calin.tcp;
 import java.io.IOException;
 import java.io.InputStream;
 import java.io.OutputStream;
-import java.net.Socket;
 
 /**
+ * Processes some input and writes some output based on a certain protocol (eg. HTTP).
+ *
  * @author calin
  */
 public interface ProtocolHandler {

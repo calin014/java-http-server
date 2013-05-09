@@ -55,7 +55,6 @@ public class BasicHttpRequestParser implements HttpRequestParser {
             try {
                 final int len = Integer.parseInt(contentLength);
                 byte[] body = new byte[len];
-                //TODO: the stream has been read into to buffer readers buffer!!!!
                 IOUtils.read(stream, body);
                 request.setBody(body);
 
@@ -111,6 +110,7 @@ public class BasicHttpRequestParser implements HttpRequestParser {
     private void parseUrl(String url, HttpRequest request) throws BadRequestException {
         String[] tokens = url.split("\\?");
         try {
+            //TODO: search encoding in Content-Type header???
             request.setUrl(URLDecoder.decode(tokens[0], "UTF-8"));
         } catch (UnsupportedEncodingException e) {
             throwBadRequest();
